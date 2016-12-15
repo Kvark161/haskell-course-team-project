@@ -14,9 +14,13 @@ executable project
   main-is:             Main.hs
   -- other-modules:       
   other-extensions:    OverloadedStrings
-  build-depends:       base >=4.9 && <4.10,
+  build-depends:       base >=4.6 && <5,
                        scotty,
                        aeson,
-                       unbound-generics
+                       unbound-generics,
+                       mysql-haskell,
+                       io-streams,
+                       text,
+                       mtl
   hs-source-dirs:      src
   default-language:    Haskell2010

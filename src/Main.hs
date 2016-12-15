@@ -1,38 +1,36 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 
 module Main where
 
 import Data.Monoid ((<>))
-import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics
 import Web.Scotty
+import Control.Monad.Trans
+import Control.Monad.IO.Class
 
-data Todo = Todo { todoId :: Int, desc :: String } deriving (Show, Generic)
-instance ToJSON Todo
-instance FromJSON Todo
-
-todo1 :: Todo
-todo1 = Todo { todoId = 1, desc = "description 1" }
-
-todo2 :: Todo
-todo2 = Todo { todoId = 2, desc = "description 2" }
-
-todos :: [Todo]
-todos = [todo1, todo2]
+import Storage
+import Todo
 
 matchesId :: Int -> Todo -> Bool
 matchesId inId todo = todoId todo == inId
+            
 
 main = do
+  conn <- getConnection
+  mapM_ printTodo =<< getAll conn
+  
   scotty 3000 $ do
+    get "/" $ do
+        redirect "/hello/username"
+  
     get "/hello/:name" $ do
         name <- param "name"
         text ("hello " <> name <> "!")
 
     get "/list" $ do
-      json todos
+      l <- liftIO $ getAll conn
+      json l
 
     get "/todo/:id" $ do
       inId <- param "id"
-      json (filter (matchesId inId) todos)
+      l <- liftIO $ getById conn inId
+      json l
