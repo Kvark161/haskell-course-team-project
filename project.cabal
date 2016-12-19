@@ -7,7 +7,6 @@ synopsis:            Todo list app
 -- copyright:
 category:            Web
 build-type:          Simple
-extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
 executable project

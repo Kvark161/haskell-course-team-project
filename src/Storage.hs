@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Storage (
-    getConnection, getAll, getById
-) where
+module Storage where
 
 
 import Database.MySQL.Base
+import GHC.Word
+import Data.Int
 import qualified System.IO.Streams as Streams
 import qualified Data.Text as T
 
@@ -19,13 +19,30 @@ getConnection = connect defaultConnectInfoMB4 {
                         ciPassword = "mysql",
                         ciDatabase = "todolist"}
     
-getAll conn = do
+getAll :: IO [Todo]
+getAll = do
+    conn <- getConnection
     (defs, is) <- query_ conn "select * from todos"
+    close conn
     res <- Streams.toList is
     return $ map toTodo res
-    
-getById conn id = do
+
+getById :: GHC.Word.Word32 -> IO Todo
+getById id = do
+    conn <- getConnection
     s <- prepareStmt conn "SELECT * FROM todos where id = ?"
     (defs, is) <- queryStmt conn s [MySQLInt32U id]
+    close conn
+    res <- Streams.toList is
+    return $ toTodo $ head res
+
+insertTodo :: T.Text -> IO Todo
+insertTodo desc = do
+    conn <- getConnection
+    result <- execute conn "insert into todos (description) values (?)" [MySQLText desc]
+    let id = okLastInsertID result
+    s <- prepareStmt conn "SELECT * FROM todos where id = ?"
+    (defs, is) <- queryStmt conn s [MySQLInt32U (fromIntegral (id :: Int))]
+    close conn
     res <- Streams.toList is
     return $ toTodo $ head res

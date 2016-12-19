@@ -15,8 +15,7 @@ matchesId inId todo = todoId todo == inId
             
 
 main = do
-  conn <- getConnection
-  
+
   scotty 3000 $ do
     get "/" $ do
         redirect "/hello/username"
@@ -26,10 +25,15 @@ main = do
         text ("hello " <> name <> "!")
 
     get "/list" $ do
-      l <- liftIO $ getAll conn
+      l <- liftIO $ getAll
       json l
 
     get "/todo/:id" $ do
       inId <- param "id"
-      l <- liftIO $ getById conn inId
+      l <- liftIO $ getById inId
       json l
+
+    get "/new/:title/:description" $ do
+      description <- param "description"
+      result <- liftIO $ insertTodo description
+      json result
