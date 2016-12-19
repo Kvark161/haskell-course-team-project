@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Storage (
-    getConnection, getAll
+    getConnection, getAll, getById
 ) where
 
 
@@ -25,7 +25,7 @@ getAll conn = do
     return $ map toTodo res
     
 getById conn id = do
-    s <- prepareStmt conn "SELECT * FROM todos where id == ?"
-    (defs, is) <- queryStmt s [MySQLInt32U id]
+    s <- prepareStmt conn "SELECT * FROM todos where id = ?"
+    (defs, is) <- queryStmt conn s [MySQLInt32U id]
     res <- Streams.toList is
     return $ toTodo $ head res

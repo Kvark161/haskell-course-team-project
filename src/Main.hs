@@ -16,7 +16,6 @@ matchesId inId todo = todoId todo == inId
 
 main = do
   conn <- getConnection
-  mapM_ printTodo =<< getAll conn
   
   scotty 3000 $ do
     get "/" $ do
