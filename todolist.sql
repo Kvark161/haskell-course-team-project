@@ -26,20 +26,13 @@ DROP TABLE IF EXISTS `todos`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `todos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(70) NOT NULL,
   `description` varchar(150) NOT NULL,
+  `add_date` datetime NOT NULL,
+  `end_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `todos`
---
-
-LOCK TABLES `todos` WRITE;
-/*!40000 ALTER TABLE `todos` DISABLE KEYS */;
-INSERT INTO `todos` VALUES (1,'сделать зарядку'),(2,'купить мороженое');
-/*!40000 ALTER TABLE `todos` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping events for database 'todolist'
@@ -58,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-12-18 15:09:12
+-- Dump completed on 2016-12-20 19:50:55
