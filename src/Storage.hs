@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Storage where
+module Storage (
+    getAll, getById, insertTodo
+)where
 
 
 import Database.MySQL.Base
@@ -12,7 +14,8 @@ import qualified Data.Text as T
 import Todo
     
 toTodo :: [MySQLValue] -> Todo
-toTodo [MySQLInt32 id, MySQLText desc] = Todo (fromIntegral id) (T.unpack desc)
+toTodo [MySQLInt32 id, MySQLText title, MySQLText desc, MySQLDateTime at, MySQLNull] = Todo (fromIntegral id) (T.unpack title) (T.unpack desc) (at) Nothing
+toTodo [MySQLInt32 id, MySQLText title, MySQLText desc, MySQLDateTime at, MySQLDateTime et] = Todo (fromIntegral id) (T.unpack title) (T.unpack desc) at (Just et)
 
 getConnection = connect defaultConnectInfoMB4 {
                             ciUser = "root",
@@ -27,19 +30,19 @@ getAll = do
     res <- Streams.toList is
     return $ map toTodo res
 
-getById :: GHC.Word.Word32 -> IO Todo
+getById :: GHC.Word.Word32 -> IO (Maybe Todo)
 getById id = do
     conn <- getConnection
     s <- prepareStmt conn "SELECT * FROM todos where id = ?"
     (defs, is) <- queryStmt conn s [MySQLInt32U id]
     close conn
     res <- Streams.toList is
-    return $ toTodo $ head res
+    return $ (if null res then Nothing else Just (toTodo $ head res))
 
-insertTodo :: T.Text -> IO Todo
-insertTodo desc = do
+insertTodo :: Todo -> IO Todo
+insertTodo obj = do
     conn <- getConnection
-    result <- execute conn "insert into todos (description) values (?)" [MySQLText desc]
+    result <- execute conn "insert into todos (title, description, add_date) values (?,?, ?)" [MySQLText (T.pack (title obj)), MySQLText (T.pack (desc obj)), MySQLDateTime (add_date obj)]
     let id = okLastInsertID result
     s <- prepareStmt conn "SELECT * FROM todos where id = ?"
     (defs, is) <- queryStmt conn s [MySQLInt32U (fromIntegral (id :: Int))]

@@ -6,15 +6,24 @@ import Data.Monoid ((<>))
 import Web.Scotty
 import Control.Monad.Trans
 import Control.Monad.IO.Class
+import Data.Time.LocalTime
+import Data.Time.Clock
 
 import Storage
 import Todo
 
 matchesId :: Int -> Todo -> Bool
 matchesId inId todo = todoId todo == inId
+
+getCurrentLocalTime :: IO LocalTime
+getCurrentLocalTime = do
+    let currentTimeZone = hoursToTimeZone 3
+    ct <- getCurrentTime
+    return $ utcToLocalTime currentTimeZone ct
             
 
 main = do
+  
 
   scotty 3000 $ do
     get "/" $ do
@@ -34,6 +43,9 @@ main = do
       json l
 
     get "/new/:title/:description" $ do
+      title <- param "title"
       description <- param "description"
-      result <- liftIO $ insertTodo description
+      ct <- liftIO $ getCurrentLocalTime
+      let obj = Todo 0 title description ct Nothing
+      result <- liftIO $ insertTodo obj
       json result
