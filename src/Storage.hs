@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Storage (
+    acceptTodo,
     findByTitle,
     getAll, 
     getById, 
@@ -15,6 +16,7 @@ import qualified System.IO.Streams as Streams
 import qualified Data.Text as T
 
 import Todo
+import Utils
     
 toTodo :: [MySQLValue] -> Todo
 toTodo [MySQLInt32 id, MySQLText title, MySQLText desc, MySQLDateTime at, MySQLNull] = Todo (fromIntegral id) (T.unpack title) (T.unpack desc) (at) Nothing
@@ -61,4 +63,13 @@ findByTitle title = do
     close conn
     res <- Streams.toList is
     return $ map toTodo res
+    
+acceptTodo :: GHC.Word.Word32 -> IO ()
+acceptTodo id = do
+    conn <- getConnection
+    s <- prepareStmt conn "UPDATE todos SET end_date = ? WHERE id = ?"
+    t <- getCurrentLocalTime
+    res <- executeStmt conn s [MySQLDateTime t, MySQLInt32U id]
+    close conn
+    
     
