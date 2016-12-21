@@ -48,6 +48,11 @@ main = do
       title <- param "title"
       result <- liftIO $ findByTitle title
       json result
+     
+    get "/find/description/:description" $ do
+      description <- param "description"
+      result <- liftIO $ findByDescription description
+      json result
       
     get "/accept/:id" $ do
       inId <- param "id"

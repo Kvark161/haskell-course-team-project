@@ -3,6 +3,7 @@
 module Storage (
     acceptTodo,
     findByTitle,
+    findByDescription,
     getAll, 
     getById, 
     insertTodo
@@ -64,6 +65,15 @@ findByTitle title = do
     res <- Streams.toList is
     return $ map toTodo res
     
+findByDescription :: String -> IO [Todo]
+findByDescription description = do
+    conn <- getConnection
+    s <- prepareStmt conn "SELECT * FROM todos where description = ?"
+    (defs, is) <- queryStmt conn s [MySQLText (T.pack description)]
+    close conn
+    res <- Streams.toList is
+    return $ map toTodo res    
+
 acceptTodo :: GHC.Word.Word32 -> IO ()
 acceptTodo id = do
     conn <- getConnection
