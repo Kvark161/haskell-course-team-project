@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Storage (
-    getAll, getById, insertTodo
+    findByTitle,
+    getAll, 
+    getById, 
+    insertTodo
 )where
 
 
@@ -49,3 +52,13 @@ insertTodo obj = do
     close conn
     res <- Streams.toList is
     return $ toTodo $ head res
+    
+findByTitle :: String -> IO [Todo]
+findByTitle title = do
+    conn <- getConnection
+    s <- prepareStmt conn "SELECT * FROM todos where title = ?"
+    (defs, is) <- queryStmt conn s [MySQLText (T.pack title)]
+    close conn
+    res <- Streams.toList is
+    return $ map toTodo res
+    

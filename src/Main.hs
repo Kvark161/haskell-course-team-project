@@ -49,3 +49,8 @@ main = do
       let obj = Todo 0 title description ct Nothing
       result <- liftIO $ insertTodo obj
       json result
+      
+    get "/find/title/:title" $ do
+      title <- param "title"
+      result <- liftIO $ findByTitle title
+      json result
