@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
 
-module Twitter (
+module Twitter_get (
 read_all_todos_from_twitter
 )
 
@@ -11,15 +11,27 @@ import Network.HTTP.Conduit
 import Web.Authenticate.OAuth
 import Data.Aeson
 import Data.Time.Clock (UTCTime)
-import Data.Text (Text)
+import Data.Text as T
 import GHC.Generics
 
 import Todo
 import Utils
 
+
+
 data Tweet =
   Tweet { text :: !Text
           } deriving (Show, Generic)
+          
+
+--todos :: Parser Todo
+--todos = Todo <$> (natural>>=return ) 
+--                 <*>  (many1 (sat (/='|'))>>=return ) 
+--                 <*>  ((string "|">> many1 (sat (/='|'))>>=return) )
+--                <*>  (liftIO $ )
+--              <*>  (return Nothing)
+--convert_from_tweet_to_todo:: Tweet -> [(Todo, String)]
+--convert_from_tweet_to_todo tw= apply todos (T.unpack $ text tw) 
 
 read_all_todos_from_twitter :: IO  (Maybe [Tweet])
 read_all_todos_from_twitter = do

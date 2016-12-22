@@ -10,7 +10,8 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
 
 import Storage
-import Twitter
+import Twitter_get
+import Twitter_post
 import Todo
 import Utils
 
@@ -54,7 +55,6 @@ main = do
       description <- param "description"
       result <- liftIO $ findByDescription description
       json result
-
             
     get "/accept/:id" $ do
       inId <- param "id"
@@ -62,7 +62,15 @@ main = do
       let s = T.pack ((T.unpack "/todo/") ++(show inId))
       redirect $ L.fromStrict s
 
+--Twitter won't post the same 2 tweets
     get "/twitter/readall" $ do
       l <- liftIO $ read_all_todos_from_twitter
       json l
-
+      
+--ма
+    get "/twitter/post_task/by/id/:id" $ do
+      inId <- param "id"
+      l <- liftIO $ getById inId  
+      result <- liftIO $ post_task (show l)
+      json result
+      text  $ L.pack ("Task by id "++(show inId)++" was posted on Twitter!")
