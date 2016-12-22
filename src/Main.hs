@@ -8,6 +8,7 @@ import Control.Monad.Trans
 import Control.Monad.IO.Class
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
+import Data.Maybe
 
 import Storage
 import Twitter_get
@@ -67,10 +68,12 @@ main = do
       l <- liftIO $ read_all_todos_from_twitter
       json l
       
---ма
     get "/twitter/post_task/by/id/:id" $ do
       inId <- param "id"
       l <- liftIO $ getById inId  
-      result <- liftIO $ post_task (show l)
+      result <- liftIO $ post_task (show $ fromJust l)
+      case l of 
+        Just smth-> text  $ L.pack ("Task with id "++(show inId)++" was posted on Twitter!")
+        Nothing -> text  $ L.pack  ("No task with such id, Nothing was posted")            
       json result
-      text  $ L.pack ("Task by id "++(show inId)++" was posted on Twitter!")
+      
