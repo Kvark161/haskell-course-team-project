@@ -71,9 +71,9 @@ main = do
     get "/twitter/post_task/by/id/:id" $ do
       inId <- param "id"
       l <- liftIO $ getById inId  
-      result <- liftIO $ post_task (show $ fromJust l)
       case l of 
-        Just smth-> text  $ L.pack ("Task with id "++(show inId)++" was posted on Twitter!")
+        Just smth->do    result <- liftIO $ post_task (show $ fromJust l)
+                         json result
+                         text  $ L.pack ("Task with id "++(show inId)++" was posted on Twitter!")
         Nothing -> text  $ L.pack  ("No task with such id, Nothing was posted")            
-      json result
       
