@@ -10,6 +10,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
 
 import Storage
+import Twitter
 import Todo
 import Utils
 
@@ -53,9 +54,15 @@ main = do
       description <- param "description"
       result <- liftIO $ findByDescription description
       json result
-      
+
+            
     get "/accept/:id" $ do
       inId <- param "id"
       liftIO $ acceptTodo inId
       let s = T.pack ((T.unpack "/todo/") ++(show inId))
       redirect $ L.fromStrict s
+
+    get "/twitter/readall" $ do
+      l <- liftIO $ read_all_todos_from_twitter
+      json l
+
