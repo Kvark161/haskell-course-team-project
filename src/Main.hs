@@ -77,6 +77,14 @@ main = do
                          json result
                          text  $ L.pack ("Task(s) with title "++(show title)++" was(were) posted on Twitter!")
 
+    get "/twitter/post_task/by/description/:description" $ do
+      description <- param "description"
+      l <- liftIO $ findByDescription description  
+      case l of 
+        [] -> text  $ L.pack  ("No task with such description, Nothing was posted")            
+        smth->do         result <- mapM (liftIO . post_task . show) l
+                         json result
+                         text  $ L.pack ("Task(s) with description "++(show description)++" was(were) posted on Twitter!")
       
     get "/twitter/post_task/by/id/:id" $ do
       inId <- param "id"
