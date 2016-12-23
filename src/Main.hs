@@ -33,6 +33,14 @@ main = do
     get "/list" $ do
       l <- liftIO $ getAll
       json l
+    
+    get "/list/done" $ do
+      l <- liftIO $ getAllDone
+      json l
+      
+    get "/list/not/done" $ do
+      l <- liftIO $ getAllNotDone
+      json l      
 
     get "/todo/:id" $ do
       inId <- param "id"
@@ -55,7 +63,9 @@ main = do
     get "/find/title/:title" $ do
       title  <- param "title"
       result <- liftIO $ findByTitle title
-      json result
+      case result of 
+       [] -> text  $ L.pack $ "No task with this titles was found!"
+       _  -> do json result
      
     get "/find/description/:description" $ do
       description <- param "description"

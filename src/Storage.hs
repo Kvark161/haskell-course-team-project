@@ -5,7 +5,9 @@ module Storage (
     findByTitle,
     findByDescription,
     findByDate,
-    getAll, 
+    getAll,
+    getAllDone, 
+    getAllNotDone,
     getById, 
     deleteById,
     insertTodo
@@ -34,6 +36,22 @@ getAll :: IO [Todo]
 getAll = do
     conn <- getConnection
     (defs, is) <- query_ conn "select * from todos"
+    close conn
+    res <- Streams.toList is
+    return $ map toTodo res
+
+getAllDone :: IO [Todo]
+getAllDone = do
+    conn <- getConnection
+    (defs, is) <- query_ conn "select * from todos where end_date is NOT NULL"
+    close conn
+    res <- Streams.toList is
+    return $ map toTodo res
+
+getAllNotDone :: IO [Todo]
+getAllNotDone = do
+    conn <- getConnection
+    (defs, is) <- query_ conn "select * from todos where end_date is NULL"
     close conn
     res <- Streams.toList is
     return $ map toTodo res
