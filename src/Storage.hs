@@ -6,6 +6,7 @@ module Storage (
     findByDescription,
     getAll, 
     getById, 
+    deleteById,
     insertTodo
 )where
 
@@ -44,6 +45,16 @@ getById id = do
     close conn
     res <- Streams.toList is
     return $ (if null res then Nothing else Just (toTodo $ head res))
+    
+deleteById :: GHC.Word.Word32 -> IO (String)
+deleteById id = do
+    conn <- getConnection
+    query <- getById id
+    case query of
+       Nothing -> return "Nothing was deleted, because there is no task with such id in DB"
+       Just _  -> do  result <- execute conn "DELETE FROM todos where id = ?" [MySQLInt32U id]
+                      close conn
+                      return $ "Task with id "++(show id)++" was deleted"
 
 insertTodo :: Todo -> IO Todo
 insertTodo obj = do

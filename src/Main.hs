@@ -39,6 +39,11 @@ main = do
       l <- liftIO $ getById inId
       json l
 
+    get "/delete/by/id/:id" $ do
+      inId <- param "id"
+      l <- liftIO $ deleteById inId
+      json l
+
     get "/new/:title/:description" $ do
       title <- param "title"
       description <- param "description"
@@ -94,4 +99,3 @@ main = do
                          json result
                          text  $ L.pack ("Task with id "++(show inId)++" was posted on Twitter!")
         Nothing -> text  $ L.pack  ("No task with such id, Nothing was posted")            
-      
