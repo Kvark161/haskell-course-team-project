@@ -77,7 +77,7 @@ insertTodo' todo conn = do
 insertTodo todo pool = withResource pool $ insertTodo' todo
 
 findByTitle' title conn = do
-    s <- prepareStmt conn "SELECT * FROM todos where title = ?"
+    s <- prepareStmt conn "SELECT * FROM todos where title like '%' || ? || '%'"
     (defs, is) <- queryStmt conn s [MySQLText (T.pack title)]
     res <- Streams.toList is
     return $ map toTodo res
@@ -85,7 +85,7 @@ findByTitle' title conn = do
 findByTitle todo pool = withResource pool $ findByTitle' todo
 
 findByDescription' description conn = do
-    s <- prepareStmt conn "SELECT * FROM todos where description = ?"
+    s <- prepareStmt conn "SELECT * FROM todos where description like '%' || ? || '%'"
     (defs, is) <- queryStmt conn s [MySQLText (T.pack description)]
     res <- Streams.toList is
     return $ map toTodo res    
