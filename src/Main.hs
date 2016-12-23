@@ -36,21 +36,21 @@ mainServer pool = do
       json l
     
     get "/list/done" $ do
-      l <- liftIO $ getAllDone
+      l <- liftIO $ getAllDone pool
       json l
       
-    get "/list/not/done" $ do
-      l <- liftIO $ getAllNotDone
+    get "/list/active" $ do
+      l <- liftIO $ getAllActive pool
       json l      
 
     get "/todo/:id" $ do
       inId <- param "id"
-      l <- liftIO $ getById inId
+      l <- liftIO $ getById inId pool
       json l
 
     get "/delete/by/id/:id" $ do
       inId <- param "id"
-      l <- liftIO $ deleteById inId
+      l <- liftIO $ deleteById inId pool
       json l
 
     get "/new/:title/:description" $ do
@@ -58,19 +58,19 @@ mainServer pool = do
       description <- param "description"
       ct <- liftIO $ getCurrentLocalTime
       let obj = Todo 0 title description ct Nothing
-      result <- liftIO $ insertTodo obj
+      result <- liftIO $ insertTodo obj pool
       json result
       
     get "/find/title/:title" $ do
       title  <- param "title"
-      result <- liftIO $ findByTitle title
+      result <- liftIO $ findByTitle title pool
       case result of 
        [] -> text  $ L.pack $ "No task with this titles was found!"
        _  -> do json result
      
     get "/find/description/:description" $ do
       description <- param "description"
-      result <- liftIO $ findByDescription description
+      result <- liftIO $ findByDescription description pool
       case result of 
        [] -> text  $ L.pack $ "No task with this description was found!"
        _  -> do json result
@@ -79,14 +79,14 @@ mainServer pool = do
       year   <- param "year"
       month  <- param "month"
       day    <- param "day"
-      result <- liftIO $ findByDate year month day
+      result <- liftIO $ findByDate year month day pool
       case result of 
        [] -> text  $ L.pack $ "No task with this date was found!"
        _  -> do json result
        
     get "/accept/:id" $ do
       inId <- param "id"
-      liftIO $ acceptTodo inId
+      liftIO $ acceptTodo inId pool
       let s = T.pack ((T.unpack "/todo/") ++(show inId))
       redirect $ L.fromStrict s
 
@@ -97,7 +97,7 @@ mainServer pool = do
 
     get "/twitter/post_task/by/title/:title" $ do
       title <- param "title"
-      l <- liftIO $ findByTitle title  
+      l <- liftIO $ findByTitle title pool
       case l of 
         [] -> text  $ L.pack  ("No task with such title, Nothing was posted")            
         smth->do         result <- mapM (liftIO . post_task . show) l
@@ -106,7 +106,7 @@ mainServer pool = do
 
     get "/twitter/post_task/by/description/:description" $ do
       description <- param "description"
-      l <- liftIO $ findByDescription description  
+      l <- liftIO $ findByDescription description pool
       case l of 
         [] -> text  $ L.pack  ("No task with such description, Nothing was posted")            
         smth->do         result <- mapM (liftIO . post_task . show) l
@@ -115,7 +115,7 @@ mainServer pool = do
       
     get "/twitter/post_task/by/id/:id" $ do
       inId <- param "id"
-      l <- liftIO $ getById inId  
+      l <- liftIO $ getById inId pool
       case l of 
         Just smth->do    result <- liftIO $ post_task (show $ fromJust l)
                          json result
