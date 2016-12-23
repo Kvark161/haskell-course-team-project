@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
-
 module Twitter_get (
 read_all_todos_from_twitter
 )
@@ -12,33 +11,20 @@ import Web.Authenticate.OAuth
 import Data.Aeson
 import Data.Time.Clock (UTCTime)
 import Data.Text as T
+import Control.Applicative
 import GHC.Generics
+import Data.Maybe
 
 import Todo
 import Utils
+import TwitterParser
 
-
-
-data Tweet =
-  Tweet { text :: !Text
-          } deriving (Show, Generic)
-          
-
---todos :: Parser Todo
---todos = Todo <$> (natural>>=return ) 
---                 <*>  (many1 (sat (/='|'))>>=return ) 
---                 <*>  ((string "|">> many1 (sat (/='|'))>>=return) )
---                <*>  (liftIO $ )
---              <*>  (return Nothing)
---convert_from_tweet_to_todo:: Tweet -> [(Todo, String)]
---convert_from_tweet_to_todo tw= apply todos (T.unpack $ text tw) 
-
-read_all_todos_from_twitter :: IO  (Maybe [Tweet])
+read_all_todos_from_twitter :: IO  (Either String [Todo])
 read_all_todos_from_twitter = do
   ets <- timeline "Task_Menedger"
   case ets of
-   Left err -> return Nothing
-   Right ts  -> return $ Just $ ts
+   Left err -> return $ Left err
+   Right ts  -> return $ Right $ fmap fromJust $  Prelude.filter (isJust) $ Prelude.map convert_from_tweet_to_todo  ts
 
 timeline :: String
          -> IO (Either String [Tweet]) 

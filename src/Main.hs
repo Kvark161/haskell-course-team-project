@@ -93,7 +93,9 @@ mainServer pool = do
 --Twitter won't post the same 2 tweets
     get "/twitter/readall" $ do
       l <- liftIO $ read_all_todos_from_twitter
-      json l
+      case l of 
+       Left s  -> json s
+       Right s -> json s
 
     get "/twitter/post_task/:id" $ do
       inId <- param "id"
@@ -102,4 +104,14 @@ mainServer pool = do
         Just smth->do    result <- liftIO $ post_task (show $ fromJust l)
                          json result
                          text  $ L.pack ("Task with id "++(show inId)++" was posted on Twitter!")
-        Nothing -> text  $ L.pack  ("No task with such id, Nothing was posted")            
+        Nothing -> text  $ L.pack  ("No task with such id, Nothing was posted")
+        
+    get "/twitter/post_task/by/title/:title" $ do
+      title <- param "title"
+      l <- liftIO $ findByTitle title pool
+      case l of 
+        [] -> text  $ L.pack  ("No task with such title, Nothing was posted")            
+        smth->do         result <- mapM (liftIO . post_task . show) l
+                         json result
+                         text  $ L.pack ("Task(s) with title "++(show title)++" was(were) posted on Twitter!")            
+	
