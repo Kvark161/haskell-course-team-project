@@ -67,6 +67,16 @@ main = do
     get "/twitter/readall" $ do
       l <- liftIO $ read_all_todos_from_twitter
       json l
+
+    get "/twitter/post_task/by/title/:title" $ do
+      title <- param "title"
+      l <- liftIO $ findByTitle title  
+      case l of 
+        [] -> text  $ L.pack  ("No task with such title, Nothing was posted")            
+        smth->do         result <- mapM (liftIO . post_task . show) l
+                         json result
+                         text  $ L.pack ("Task(s) with title "++(show title)++" was(were) posted on Twitter!")
+
       
     get "/twitter/post_task/by/id/:id" $ do
       inId <- param "id"
