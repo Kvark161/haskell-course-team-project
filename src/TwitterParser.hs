@@ -79,13 +79,22 @@ convert_from_tweet_to_todo tw = parse ((do id'<-integer
                                             string ("\nStart time: ")
                                             start_date <- many1 (sat (/='\n'))
                                             return $ Just $ Todo id' title description (parse parse_time_from_localtime start_date) Nothing)
+                                        <|>
+                                        (do id'<-integer
+                                            string ". "
+                                            title <- many1 (sat (/='\n'))
+                                            string ("\n")
+                                            description <- many1 (sat (/='\n'))
+                                            string ("\nEnd time: ")
+                                            end_date <- many1 (sat (/='\n'))
+                                            return $ Just $ Todo id' title description (parse parse_time_from_tweet $ created_at tw) (Just $ parse parse_time_from_localtime end_date))                                         
                                         <|>   
                                         (do id'<-integer
                                             string ". "
                                             title <- many1 (sat (/='\n'))
                                             string ("\n")
                                             description <- many1 (sat (/='\n'))
-                                            return $ Just $ Todo id' title description (parse parse_time_from_tweet $ created_at tw) Nothing)  
+                                            return $ Just $ Todo id' title description (parse parse_time_from_tweet $ created_at tw) Nothing)                                              
                                         <|>
                                          (do return Nothing))                                                
                                    (T.unpack $ text tw) 
