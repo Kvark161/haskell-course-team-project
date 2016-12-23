@@ -53,15 +53,26 @@ main = do
       json result
       
     get "/find/title/:title" $ do
-      title <- param "title"
+      title  <- param "title"
       result <- liftIO $ findByTitle title
       json result
      
     get "/find/description/:description" $ do
       description <- param "description"
       result <- liftIO $ findByDescription description
-      json result
+      case result of 
+       [] -> text  $ L.pack $ "No task with this description was found!"
+       _  -> do json result
             
+    get "/find/date/:year/:month/:day" $ do
+      year   <- param "year"
+      month  <- param "month"
+      day    <- param "day"
+      result <- liftIO $ findByDate year month day
+      case result of 
+       [] -> text  $ L.pack $ "No task with this date was found!"
+       _  -> do json result
+       
     get "/accept/:id" $ do
       inId <- param "id"
       liftIO $ acceptTodo inId

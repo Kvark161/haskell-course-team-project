@@ -4,6 +4,7 @@ module Storage (
     acceptTodo,
     findByTitle,
     findByDescription,
+    findByDate,
     getAll, 
     getById, 
     deleteById,
@@ -84,6 +85,15 @@ findByDescription description = do
     close conn
     res <- Streams.toList is
     return $ map toTodo res    
+    
+findByDate :: String -> String -> String -> IO [Todo]
+findByDate year month date = do
+    conn <- getConnection
+    s <- prepareStmt conn "SELECT * FROM todos where YEAR(add_date) = ? && MONTH(add_date)=? && DAY(add_date)=?"
+    (defs, is) <- queryStmt conn s [MySQLInt32 (read year), MySQLInt32 (read month),MySQLInt32 (read date) ]
+    close conn
+    res <- Streams.toList is
+    return $ map toTodo res        
 
 acceptTodo :: GHC.Word.Word32 -> IO ()
 acceptTodo id = do
