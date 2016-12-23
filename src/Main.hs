@@ -19,8 +19,9 @@ import Utils
 matchesId :: Int -> Todo -> Bool
 matchesId inId todo = todoId todo == inId
 
-main = do
-  
+main = connectAndRun mainServer
+
+mainServer pool = do
 
   scotty 3000 $ do
     get "/" $ do
@@ -31,7 +32,7 @@ main = do
         text ("hello " <> name <> "!")
 
     get "/list" $ do
-      l <- liftIO $ getAll
+      l <- liftIO $ getAll pool
       json l
     
     get "/list/done" $ do

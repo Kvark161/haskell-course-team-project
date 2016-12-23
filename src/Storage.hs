@@ -19,10 +19,11 @@ import GHC.Word
 import Data.Int
 import qualified System.IO.Streams as Streams
 import qualified Data.Text as T
+import Data.Pool
 
 import Todo
 import Utils
-    
+
 toTodo :: [MySQLValue] -> Todo
 toTodo [MySQLInt32 id, MySQLText title, MySQLText desc, MySQLDateTime at, MySQLNull] = Todo (fromIntegral id) (T.unpack title) (T.unpack desc) (at) Nothing
 toTodo [MySQLInt32 id, MySQLText title, MySQLText desc, MySQLDateTime at, MySQLDateTime et] = Todo (fromIntegral id) (T.unpack title) (T.unpack desc) at (Just et)
@@ -31,14 +32,14 @@ getConnection = connect defaultConnectInfoMB4 {
                             ciUser = "root",
                         ciPassword = "mysql",
                         ciDatabase = "todolist"}
-    
-getAll :: IO [Todo]
-getAll = do
-    conn <- getConnection
+
+
+getAll' conn = do
     (defs, is) <- query_ conn "select * from todos"
-    close conn
     res <- Streams.toList is
     return $ map toTodo res
+
+getAll pool = withResource pool getAll'
 
 getAllDone :: IO [Todo]
 getAllDone = do
