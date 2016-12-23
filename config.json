@@ -1,0 +1,8 @@
+{
+	"userName" : "root",
+    "password" : "mysql",
+	"databaseName" : "todolist",
+	"stripeSize" : 10,
+	"connectionLife" : 300,
+	"poolSize" : 10
+}
